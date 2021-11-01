@@ -1,0 +1,51 @@
+{% include 'etsynest/base.html' %}
+{% load static %}
+
+
+{% block 'STYLES' %}
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.11.2/css/jquery.dataTables.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/datetime/1.1.0/css/dataTables.dateTime.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/rowgroup/1.1.3/css/rowGroup.dataTables.min.css">
+{% endblock %}
+
+{% block 'BODY' %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="text-center m-5">Listings Detail</h1>
+            <h2 class="m-5">{{listing.title}}</h2>
+            <p>{{listing.original_creation_tsz}}</p>
+
+            <table class="table">
+                <thead>
+                    <th>Created At</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Num Favorers</th>
+                </thead>
+                <tbody>
+                    {% for record in record_list %}
+                    <tr>  
+                        <td>{{record.created_at}}</td>
+                        <td>{{record.price}}</td>
+                        <td>{{record.quantity}}</td>
+                        <td>{{record.num_favorers}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block 'SCRIPTS' %}
+    <!-- DataTables Script -->
+    <script type="text/javascript" src="{% static 'js/dataTables.bootstrap4.min.js'%}"></script>
+
+    <script type="text/javascript" src="{% static 'js/moment.min.js'%}"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.11.2/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/rowgroup/1.1.3/js/dataTables.rowGroup.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/datetime/1.1.0/js/dataTables.dateTime.min.js"></script>
+
+{% endblock %}

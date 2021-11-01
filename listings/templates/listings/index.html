@@ -1,0 +1,97 @@
+{% include 'etsynest/base.html' %}
+{% load static %}
+
+{% block 'STYLES' %}
+  <link rel="stylesheet" href="{% static 'css/dataTables.bootstrap4.min.css' %}">
+  <link rel="stylesheet" href="https://cdn.datatables.net/datetime/1.1.0/css/dataTables.dateTime.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/rowgroup/1.1.3/css/rowGroup.bootstrap.min.css">
+{% endblock %}
+
+{% block 'BODY' %}
+<div class="container">
+
+  <h1 class="text-center m-5">Listings</h1>
+
+  <div class="row mt-3 mb-5">
+    <div class="col-12">
+        <table id="listings-table" class="table table-hover table-bordered" style="width:100%">
+            <thead>
+              <tr>
+                <th id="column_id">ID</th>
+                <th id="column_date">Date</th>
+                <th id="column_shop">Shop</th>
+                <th id="column_title">Title</th>
+                <th id="column_quantity">Quantity</th>
+                <th id="column_views">Views</th>
+                <th id="column_views_per_day">Views/Day</th>
+                <th id="column_num_favorers">Num Favorers</th>
+              </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block 'SCRIPTS' %}
+
+<!-- DataTables Script -->
+<script type="text/javascript" src="{% static 'js/jquery.dataTables.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/dataTables.bootstrap4.min.js'%}"></script>
+
+<script type="text/javascript" src="{% static 'js/moment.min.js'%}"></script>
+<script type="text/javascript" src="{% static 'js/dataTables.rowGroup.min.js'%}"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/datetime/1.1.0/js/dataTables.dateTime.min.js"></script>
+<script type="text/javascript">
+
+$(document).ready(function() {
+
+  const ID_COLUMN = 0 ;
+  const DATE_COLUMN = 1;
+  const SHOP_COLUMN = 2;
+  const TITLE_COLUMN = 3;
+  const QUANTITY_COLUMN = 4;
+  const VIEWS_COLUMN = 5;
+  const VIEWS_PER_DAY_COLUMN = 6;
+  const NUM_FAVORERS_COLUMN = 7;
+
+  var shops_table = $('#listings-table').DataTable(
+    {
+      "order": [[ DATE_COLUMN, "desc" ]],
+      "columnDefs": [
+            { "type" : 'date', 'targets': [DATE_COLUMN] },
+            {
+                "targets": [ DATE_COLUMN, ID_COLUMN, SHOP_COLUMN ],
+                "visible": false
+            },
+            
+        ],
+        "rowGroup": {
+              dataSrc: [DATE_COLUMN, SHOP_COLUMN],
+        },
+        "processing": true,
+        "serverSide": false,
+        "ajax": {
+                headers: { "X-CSRFToken": '{{csrf_token}}' },
+                url: "{% url 'listings_index' %}",
+                method: "POST",
+            },
+
+    }
+  );
+
+
+    $('#listings-table tbody').on('click', 'tr', function () {
+      var data = shops_table.row( this ).data();
+      //window.open('./' + data[ID_COLUMN], 'name'); 
+      window.open('./' + data[ID_COLUMN]); 
+    } );
+  
+  });
+
+</script>
+
+{% endblock %}

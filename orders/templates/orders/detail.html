@@ -1,0 +1,154 @@
+{% include 'etsynest/base.html' %}
+{% load static %}
+
+
+{% block 'STYLES' %}
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.11.2/css/jquery.dataTables.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/datetime/1.1.0/css/dataTables.dateTime.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/rowgroup/1.1.3/css/rowGroup.dataTables.min.css">
+{% endblock %}
+
+{% block 'BODY' %}
+<div class="container">
+
+    <!-- Header -->
+    <div class="row mt-5">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-body">
+            <h1 class="display-4">{{order.name}}'s Order</h1>
+            <p>{{order.id}}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Body -->
+    <div class="row mt-2">
+  
+      <!-- Etsy Data -->
+      <div class="col-md-6 mt-2">
+        <h1>Etsy Data</h1>
+        <div class="row">
+          <div class="col-12">
+            <!-- Personal Information -->
+            <div class="col-12">
+              <div class="card">
+                <div class="card-header">Personal Information</div>
+                <div class="card-body">
+                  <p>{{order.name}}</p>
+                  <p>{{order.buyer_email}}</p>
+                </div>
+              </div>
+            </div>
+            <!-- Shipping Information -->
+            <div class="col-12 mt-3">
+              <div class="card">
+                <div class="card-header">Shipping Information</div>
+                <div class="card-body">
+                  <p>
+                    {{order.first_line}},{{order.second_line}}<br>
+                    {{order.city}},
+                    {{order.state}},
+                    {{order.zip}},<br>
+                    {{order.country_id}}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+  
+        </div>
+  
+      </div>
+  
+      <!-- Financial Information -->
+      <div class="col-6 mt-3">
+        <div class="card">
+          <div class="card-header">Financial Information</div>
+          <div class="card-body text-right">
+            <div class="row">
+              <div class="col-md-12">
+                <p><b>Etsy Subtotal:</b> {{order.subtotal}}$</p>
+                <p><b>Etsy Tax Cost:</b> {{order.tax_cost}}$</p>
+                <p><b>Etsy Fees:</b> {{order.etsy_fees}}$</p>
+                <hr>
+                <p><b>Total Etsy Revenue:</b> {{order.total_revenue}}$</p>
+              </div>
+              <div class="col-md-12">
+                {% for item in order.line_items %}
+                <p><b>Production Item Set {{forloop.counter}}:</b> {{item.cost}} $</p>
+                {% endfor %}
+                <hr>
+                <p><b>Total Production Cost:</b> {{ order.total_price }}$</p>
+              </div>
+              <div class="col-md-12">
+                {% for item in order.line_items %}
+                <p><b>Shipping Item Set {{forloop.counter}}:</b> {{item.shipping_cost}} $</p>
+                {% endfor %}
+                <hr>
+                <p><b>Total Shipping Cost:</b> {{order.total_shipping}}$</p>
+              </div>
+              <div class="col-md-12">
+                <p><b>Etsy Revenue:</b> {{einfo.total_revenue}}$</p>
+                <p><b>Printify Cost:</b> {{ order.total_price|add:order.total_shipping }}$</p>
+                <hr>
+                <p><b>Total Profit:</b>{{einfo.total_profit}} $</p>
+              </div>
+            </div>
+  
+          </div>
+        </div>
+      </div>
+  
+    </div>
+  
+    <!-- Item Listing 
+    <div class="row mt-5 mb-5">
+      <div class="col-12"><h1 class="display-4">Items</h1></div>
+  
+      {% for item in order.line_items %}
+      <div class="col-12 mt-3">
+        <div class="card">
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-3">
+                <img src="https://via.placeholder.com/300" alt="" style="width: 100%;">
+              </div>
+              <div class="col-md-5">
+                <p><b>{{item.metadata.title}}</b> <span class="badge badge-secondary">{{item.quantity}}</span></p>
+                <p>{{item.print_provider_id}}</p>
+                <p>{{item.metadata.variant_label}}</p>
+                <p>SKU: {{item.metadata.sku}}</p>
+                <p>{{item.sent_to_production_at}} / {{item.fulfilled_at}}</p>
+                <p> <span class="badge badge-warning">{{item.status}}</span> </p>
+              </div>
+              <div class="col-md-4 text-right">
+                <p><b>Production Cost:</b> {{ item.cost }}$</p>
+                <p><b>Shipping Cost:</b> {{ item.shipping_cost }} $</p>
+                <hr>
+                <p><b>Item Cost:</b> {{item.cost|add:item.shipping_cost }}$</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+  
+    </div>
+  
+  </div>
+  -->
+  
+{% endblock %}
+
+{% block 'SCRIPTS' %}
+    <!-- DataTables Script -->
+    <script type="text/javascript" src="{% static 'js/dataTables.bootstrap4.min.js'%}"></script>
+
+    <script type="text/javascript" src="{% static 'js/moment.min.js'%}"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.11.2/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/rowgroup/1.1.3/js/dataTables.rowGroup.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/datetime/1.1.0/js/dataTables.dateTime.min.js"></script>
+
+{% endblock %}

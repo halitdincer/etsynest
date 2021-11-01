@@ -1,0 +1,152 @@
+{% include 'etsynest/base.html' %}
+{% load static %}
+
+{% block 'STYLES' %}
+  <link rel="stylesheet" href="{% static 'css/dataTables.bootstrap4.min.css' %}">
+  <link rel="stylesheet" href="https://cdn.datatables.net/datetime/1.1.0/css/dataTables.dateTime.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/rowgroup/1.1.3/css/rowGroup.bootstrap.min.css">
+{% endblock %}
+
+{% block 'BODY' %}
+<div class="container">
+
+  <h1 class="text-center m-5">Keywords</h1>
+
+  <div class="row mt-3 mb-5">
+
+    <div class="col-8">
+        <div class="input-group mb-3">
+          <input id="inputKeyword" placeholder="Put your keywords here..."  type="text" class="form-control">
+          <div class="input-group-append">
+            <div class="input-group-text">
+              Detail Search
+              <input id="checkboxKeyword" type="checkbox" class="ml-2">
+            </div>
+            <button id="buttonKeyword" class="btn btn-outline-primary" type="button">Submit</button>
+          </div>
+        </div>
+
+        <table id="keywords-table" class="table table-hover table-bordered" style="width:100%">
+            <thead>
+              <tr>
+                <th id="column_keyword">Keyword</th>
+                <th id="column_count">Count</th>
+                <th id="column_popularity">Popularity</th>
+                <th id="column_popularity">PPC</th>
+              </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
+    </div>
+    <div class="col-4">
+      <div class="position-fixed">
+        <label for="keywordlist">Keyword List:</label>
+        <textarea id="keywordlist" class="form-control d-flex" name="keywordlist" rows="17" cols="10"></textarea>
+        <div class="btn-group d-flex mt-2" role="group" aria-label="Basic example">
+          <button type="button" id="buttonShirt" class="btn btn-secondary">Shirt</button>
+          <button type="button" id="buttonHoodie" class="btn btn-secondary">Hoodie</button>
+          <button type="button" id="buttonSweatshirt" class="btn btn-secondary">Sweatshirt</button>
+          <button type="button" id="buttonCopy" class="btn btn-primary">Copy</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block 'SCRIPTS' %}
+
+<!-- DataTables Script -->
+<script type="text/javascript" src="{% static 'js/jquery.dataTables.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/dataTables.bootstrap4.min.js'%}"></script>
+
+<script type="text/javascript" src="{% static 'js/moment.min.js'%}"></script>
+<script type="text/javascript" src="{% static 'js/dataTables.rowGroup.min.js'%}"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/datetime/1.1.0/js/dataTables.dateTime.min.js"></script>
+<script type="text/javascript">
+
+$(document).ready(function() {
+
+  const KEYWORD_COLUMN = 0 ;
+  const COUNT_COLUMN = 1;
+  const POPULARITY_COLUMN = 2;
+
+    var keyword_table ;
+
+    // Trigger button click on Enter 
+    document.getElementById("inputKeyword").addEventListener("keyup", function(event) {
+      if (event.keyCode === 13) {
+        event.preventDefault();
+        document.getElementById("buttonKeyword").click();
+      }
+    });
+
+    // Action for button click
+    $("#buttonKeyword").click(function() {
+
+      $('#keywords-table').DataTable().clear().destroy();
+      $('#keywords-table').DataTable({
+          "order": [[ COUNT_COLUMN, "desc" ]],
+            "columnDefs": [
+                { width: '50%', targets: KEYWORD_COLUMN }
+            ],
+            "processing": true,
+            "serverSide": false,
+            "ajax": {
+                    headers: { "X-CSRFToken": '{{csrf_token}}' },
+                    url: "{% url 'keywords_index' %}",
+                    method: "POST",
+                    'data': {
+                      'keywords': $( "#inputKeyword" ).val(),
+                      'detailsearch' : $("#checkboxKeyword").is( ":checked" ),
+                    },
+                },
+      });
+
+    });
+
+
+    $('#keywords-table').on('click', 'tr', function (e) {
+      var data = $('#keywords-table').DataTable().row(this).data();
+      if (e.detail === 1) {
+        $('#keywordlist').val($('#keywordlist').val()+data[KEYWORD_COLUMN] + ",\n"); 
+      } else if (e.detail === 2) {
+        $('#inputKeyword').val(data[KEYWORD_COLUMN]) ;
+        $('#buttonKeyword').click();
+      } 
+    } );
+
+
+    $("#buttonShirt").click(function() {
+      $('#keywordlist').val($('#keywordlist').val().replaceAll(" hoodie"," shirt"));
+      $('#keywordlist').val($('#keywordlist').val().replaceAll(" sweatshirt"," shirt"));
+    });
+    $("#buttonHoodie").click(function() {
+      $('#keywordlist').val($('#keywordlist').val().replaceAll(" sweatshirt"," hoodie"));
+      $('#keywordlist').val($('#keywordlist').val().replaceAll(" t-shirt"," hoodie"));
+      $('#keywordlist').val($('#keywordlist').val().replaceAll(" tshirt"," hoodie"));
+      $('#keywordlist').val($('#keywordlist').val().replaceAll(" shirt"," hoodie"));
+    });
+    $("#buttonSweatshirt").click(function() {
+      $('#keywordlist').val($('#keywordlist').val().replaceAll(" shirt"," sweatshirt"));
+      $('#keywordlist').val($('#keywordlist').val().replaceAll(" hoodie"," sweatshirt"));
+      $('#keywordlist').val($('#keywordlist').val().replaceAll(" tshirt"," sweatshirt"));
+      $('#keywordlist').val($('#keywordlist').val().replaceAll(" t-shirt"," sweatshirt"));
+    });
+    $("#buttonCopy").click(function() {
+      $('#keywordlist').select();
+      document.execCommand("Copy");
+    });
+  
+    
+});
+
+window.onbeforeunload = function() {
+    return "Dude, are you sure you want to leave? Think of the kittens!";
+}
+
+</script>
+
+{% endblock %}
