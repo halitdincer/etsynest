@@ -48,6 +48,18 @@
       <!--<h1 class="display-1">Printify+</h1>-->
       <h5>There are {{ orders|length }} orders in total</h5>
     </div>
+    <div class="col-12">
+      <form class="form-inline">
+        <div class="form-group">
+          <label for="min">Minimum Date: </label>
+          <input type="text" class="form-control ml-2" id="min" name="min" placeholder="...">
+        </div>
+        <div class="form-group ml-5">
+          <label for="max">Maximum Date: </label>
+          <input type="text" class="form-control ml-2" id="max" name="max" placeholder="...">
+        </div>
+      </form>
+    </div>
   </div>
 
   <div class="row">
@@ -61,11 +73,20 @@
             <th>Customer Name</th>
             <th>Price</th>
             <th>Cost</th>
+            <th>Revenue</th>
           </tr>
         </thead>
         <tbody>
 
         </tbody>
+        <tfoot>
+          <tr>
+              <th colspan="3" style="text-align:right">Total:</th>
+              <th></th>
+              <th></th>
+              <th></th>
+          </tr>
+        </tfoot>
     </table>
     </div>
   </div>
@@ -92,6 +113,37 @@
 const ID_COLUMN = 0;
 const DATE_COLUMN = 1;
 const NAME_COLUMN = 2;
+const PRICE_COLUMN = 3;
+const COST_COLUMN = 4;
+const REVENUE_COLUMN = 5;
+
+var minDate, maxDate;
+
+$.fn.dataTable.ext.search.push(
+    function( settings, data, dataIndex ) {
+        var min = minDate.val();
+        var max = maxDate.val();
+        var date = new Date( data[DATE_COLUMN] );
+
+        if (
+            ( min === null && max === null ) ||
+            ( min === null && date <= max ) ||
+            ( min <= date   && max === null ) ||
+            ( min <= date   && date <= max )
+        ) {
+            return true;
+        }
+        return false;
+    }
+    );
+
+// Create date inputs
+minDate = new DateTime($('#min'), {
+    format: 'MMMM Do YYYY'
+});
+maxDate = new DateTime($('#max'), {
+    format: 'MMMM Do YYYY'
+});
 
 var table = document.getElementById("order-table");
 
@@ -130,13 +182,52 @@ $('#order-table thead tr').clone(true).appendTo( '#order-table thead' );
               headers: { "X-CSRFToken": '{{csrf_token}}' },
               url: "{% url 'orders_index' %}",
               method: "POST",
-          },
+      },
+      "footerCallback": function ( row, data, start, end, display ) {
+            var api = this.api(), data;
+ 
+            // Remove the formatting to get integer data for summation
+            var intVal = function ( i ) {
+                return typeof i === 'string' ?
+                    i.replace(/[\$,]/g, '')*1 :
+                    typeof i === 'number' ?
+                         i : 0;
+             };
+
+            var getTotalOfColumn = function ( COLUMN ){
+                // Total over all pages
+                total = api
+                    .column( COLUMN, { search: 'applied' } )
+                    .data()
+                    .reduce( function (a, b) {
+                        return intVal(a) + intVal(b);
+                    }, 0 );
+    
+                // Total over this page
+                pageTotal = api
+                    .column( COLUMN, { page: 'current'} )
+                    .data()
+                    .reduce( function (a, b) {
+                        return intVal(a) + intVal(b);
+                    }, 0 );
+                // Update footer
+                $( api.column( COLUMN ).footer() ).html(
+                  '$'+ pageTotal.toFixed(2) + ' ($' + total.toFixed(2) + ')'
+                );
+            };
+
+            getTotalOfColumn(PRICE_COLUMN);
+            getTotalOfColumn(COST_COLUMN);
+            getTotalOfColumn(REVENUE_COLUMN);
+ 
+            
+      },
     }
   );
 
   order_table.on('click', 'tr', function () {
       var data = order_table.row( this ).data();
-      //window.open('./' + data[ID_COLUMN], 'name'); 
+
       $.ajax({
           url: './' + data[ID_COLUMN],
           type: 'GET',
@@ -155,6 +246,10 @@ $('#order-table thead tr').clone(true).appendTo( '#order-table thead' );
       });
   });
 
+  // Refilter the table
+  $('#min, #max').on('change', function () {
+    order_table.draw();
+  });
 
 </script>
 

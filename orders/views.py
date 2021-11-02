@@ -21,15 +21,17 @@ class OrderListView(ListView):
                 l_data.append([order.order_id,
                                 timezone.localtime(order.created_at).strftime('%d %B %Y'),
                                 order.first_name,
-                                order.total_price,
-                                order.total_cost
+                                '$' + str(round(order.total_price-order.total_tax,2)),
+                                '$' + str(order.total_cost),
+                                '$' + str(round(int(order.total_cost != 0)*(order.total_price-order.total_cost),2)),
                 ])
             else:
                 l_data.append([order.order_id,
                                 "",
                                 order.first_name,
-                                order.total_price,
-                                order.total_cost
+                                '$' + str(round(order.total_price-order.total_tax,2)),
+                                '$' + str(order.total_cost),
+                                '$' + str(round(int(order.total_cost != 0)*(order.total_price-order.total_cost),2)),
                 ])
 
         context = {}

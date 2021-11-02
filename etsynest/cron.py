@@ -27,7 +27,7 @@ def get_request_Printify_API(url_ext):
 
     resp = requests.get(url,headers=B_HEADER)
 
-    while 'json' in resp.headers.get('Content-Type') and 'data' in resp.json().keys() and i<20:
+    while 'json' in resp.headers.get('Content-Type') and 'data' in resp.json().keys() and i<10000:
 
         if resp.status_code != 200: 
             print("Something is wrong!!!")
@@ -85,7 +85,6 @@ def update_orders():
             order.zip_code = r_receipts['zip']
 
             order.email = r_receipts['buyer_email']
-            order.phone = r_receipts['phone']
             order.country = r_receipts['country_id']
 
             order.total_price = r_receipts['grandtotal']
@@ -99,7 +98,6 @@ def update_orders():
 
     for r_order in r_data:
         if 'shop_order_id' in r_order['metadata'].keys():
-            print(str(r_order['metadata']['shop_order_id']))
             order = Order.objects.filter(order_id=r_order['metadata']['shop_order_id']).first()
             if order :
                 order.total_cost = round(float(r_order['total_price'] + r_order['total_shipping'])/100.0*1.24,2)
