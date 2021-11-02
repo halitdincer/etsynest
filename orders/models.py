@@ -31,6 +31,17 @@ class Order(models.Model):
 
     def __str__(self):
         return str(self.first_name) + "'s Order"
+    
+    def as_json(self):
+        return dict(
+            order_id=self.order_id,
+            first_name=self.first_name, 
+            last_name=self.last_name,
+            email=self.email,
+            phone=self.phone,
+            total_price=self.total_price,
+            total_cost=self.total_cost,
+            created_at=self.created_at.isoformat())
 
 class OrderItem(models.Model):
 

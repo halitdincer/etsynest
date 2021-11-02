@@ -9,7 +9,37 @@
 
 {% block 'BODY' %}
 
-
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Order #<span class="order_id"></span></h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div>
+          <p><b>Personal Details</b></p>
+          <p class="first_name"></p>
+          <p class="last_name"></p>
+          <p class="email"></p>
+          <p class="phone"></p>
+          <p><b>Billing</b></p>
+          <p>Price: <span class="total_price"></span></p>
+          <p>Cost: <span class="total_cost"></span></p>
+          <hr>
+          <p>Revenue: <span class="revenue"></span></p>
+          
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Send message</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <div class="container-fluid p-5">
 
@@ -104,11 +134,26 @@ $('#order-table thead tr').clone(true).appendTo( '#order-table thead' );
     }
   );
 
-  $('#order-table tbody').on('click', 'tr', function () {
-      var data = $('#order-table tbody').row( this ).data();
+  order_table.on('click', 'tr', function () {
+      var data = order_table.row( this ).data();
       //window.open('./' + data[ID_COLUMN], 'name'); 
-      window.open('./' + data[ID_COLUMN]); 
-    } );
+      $.ajax({
+          url: './' + data[ID_COLUMN],
+          type: 'GET',
+          success: function(results) { 
+            var modal = $("#exampleModal");
+            modal.find('.order_id').text(results['order_id']);
+            modal.find('.first_name').text(results['first_name']);
+            modal.find('.last_name').text(results['last_name']);
+            modal.find('.phone').text(results['phone']);
+            modal.find('.email').text(results['email']);
+            modal.find('.total_price').text(results['total_price']);
+            modal.find('.total_cost').text(results['total_cost']);
+            modal.find('.revenue').text((results['total_price']-results['total_cost']).toFixed(2));
+            modal.modal('show');
+          }
+      });
+  });
 
 
 </script>

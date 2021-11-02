@@ -3,7 +3,6 @@ from django.http import JsonResponse
 from django.views.generic import ListView,DetailView
 from django.views.generic.base import TemplateView
 
-from datetime import date,datetime
 from django.utils import timezone
 
 from .models import Order,OrderItem
@@ -58,3 +57,6 @@ class OrderDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         context['item_list'] = OrderItem.objects.filter(order=self.object)
         return context
+
+    def render_to_response(self, context, **response_kwargs):
+        return JsonResponse(self.object.as_json(), **response_kwargs)

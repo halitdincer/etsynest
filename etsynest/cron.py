@@ -85,7 +85,7 @@ def update_orders():
             order.zip_code = r_receipts['zip']
 
             order.email = r_receipts['buyer_email']
-            order.phone = r_receipts['name']
+            order.phone = r_receipts['phone']
             order.country = r_receipts['country_id']
 
             order.total_price = r_receipts['grandtotal']
@@ -102,12 +102,7 @@ def update_orders():
             print(str(r_order['metadata']['shop_order_id']))
             order = Order.objects.filter(order_id=r_order['metadata']['shop_order_id']).first()
             if order :
-                total_cost = 0
-                for item in r_order['line_items']:
-                    total_cost = total_cost + item['cost']
-                    total_cost = total_cost + item['shipping_cost']
-                order.total_cost = total_cost
-                print(str(r_order['metadata']['shop_order_id']) + " " + str(order.total_cost))
+                order.total_cost = round(float(r_order['total_price'] + r_order['total_shipping'])/100.0*1.24,2)
                 order.save()
 
 def update_listings(shop):
