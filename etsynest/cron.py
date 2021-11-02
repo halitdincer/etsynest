@@ -33,7 +33,7 @@ def get_request_Printify_API(url_ext):
             print("Something is wrong!!!")
 
         orders.extend(resp.json()['data'])
-        print("Page " + str(i) + " loaded")
+        print("Printify Page " + str(i) + " loaded")
         i+=1
 
         resp = requests.get(url + "&page=" + str(i),headers=B_HEADER)
