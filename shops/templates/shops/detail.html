@@ -17,12 +17,11 @@
         <div class="col-12">
             <table id="shops-table" class="table table-hover table-bordered" style="width:100%">
                 <thead>
+                    <th>Date 1</th>
+                    <th>Date 2</th>
                     <th>Listing ID</th>
-                    <th>Listing</th>
-                    <th>Created At</th>
-                    <th>Quantity</th>
-                    <th>Num Favorers</th>
-                    <th>Price</th>
+                    <th>Listing Title</th>
+                    <th>Sales</th>
                 </thead>
                 <tbody>
 
@@ -46,25 +45,24 @@
 <script type="text/javascript" src="https://cdn.datatables.net/datetime/1.1.0/js/dataTables.dateTime.min.js"></script>
 <script type="text/javascript">
 
-  const LISTING_ID_COLUMN = 0 ;
-  const LISTING_COLUMN = 1 ;
-  const CREATED_AT_COLUMN = 2;
-  const QUANTITY_COLUMN = 3;
-  const NUM_FAVORERS_COLUMN = 4;
-  const PRICE_COLUMN = 5;
+  const DATE1_COLUMN = 0 ;
+  const DATE2_COLUMN = 1 ;
+  const LISTING_ID_COLUMN = 2 ;
+  const TITLE_COLUMN = 3;
+  const SALES_COLUMN = 4;
 
   var shops_table = $('#shops-table').DataTable(
     {
-      "order": [[ LISTING_COLUMN, "desc" ]],
+      "order": [[ DATE1_COLUMN, "desc" ]],
       "columnDefs": [
-            { "type" : 'date', 'targets': [CREATED_AT_COLUMN] },
+            { "type" : 'date', 'targets': [DATE1_COLUMN] },
             {
-                "targets": [LISTING_COLUMN, LISTING_ID_COLUMN] ,
+                "targets": [LISTING_ID_COLUMN] ,
                 "visible": false
             },
         ],
         "rowGroup": {
-              "dataSrc" : LISTING_COLUMN,
+              "dataSrc" : DATE1_COLUMN,
         },
         "processing": true,
         "serverSide": false,

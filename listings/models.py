@@ -14,8 +14,15 @@ class Listing(models.Model):
     def __str__(self):
         return "Title:"+self.title
 
+class ListingRecordSeries(models.Model):
+
+    created_at = models.DateTimeField(default=now)
+
+
 class ListingRecord(models.Model):
+    series = models.ForeignKey(ListingRecordSeries, blank=True, null=True, on_delete=models.CASCADE)
     listing = models.ForeignKey(Listing, on_delete=models.CASCADE)
+
     price = models.DecimalField(max_digits=6, decimal_places=2)
     quantity = models.PositiveIntegerField(default=0)
     num_favorers = models.PositiveIntegerField(default=0)

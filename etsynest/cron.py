@@ -1,5 +1,6 @@
 import requests,json,os
 import datetime,pytz
+from django.conf import settings
 
 from requests_oauthlib import OAuth1,OAuth1Session
 
@@ -9,7 +10,7 @@ from etsy_config import ETSY_RESOURCE_OWNER_KEY,ETSY_RESOURCE_OWNER_SECRET
 from shops.models import Shop
 from orders.models import Order
 
-from listings.models import Listing,ListingRecord
+from listings.models import Listing,ListingRecord, ListingRecordSeries
 
 from printify_config import PRINTIFY_SHOP_ID,PRINTIFY_URL, PRINTIFY_API_KEY
 
@@ -42,6 +43,8 @@ def get_request_Printify_API(url_ext):
 
 def get_request_Etsy_API_v2(url_ext, total):
 
+    print("\t Request to Etsy API Started")
+
     # API call Etsy to receive data
     etsy = OAuth1Session(ETSY_API_KEY, \
                             client_secret=ETSY_CLIENT_SECRET, \
@@ -54,19 +57,21 @@ def get_request_Etsy_API_v2(url_ext, total):
     r_data = []
     
     resp = etsy.get(url + "&page=" + str(i))
+
+    # if settings.DEBUG:
+    #     print("\t REQUEST URL: " + url + "&page=" + str(i) )
+    #     print("\t REQUEST STATUS: " + str(resp.status_code))
+    #     print("\t REQUEST RESULTS: " + str(resp.text))
     
     while 'json' in resp.headers.get('Content-Type') and 'results' in resp.json().keys() and i < total:
-
-        
-        # This means something went wrong.
-        if resp.status_code != 200: 
-            print("Something is wrong!!!")
-        else:
-            r_data.extend(resp.json()['results'])
+                
+        r_data.extend(resp.json()['results'])
 
         i+=1
         resp = etsy.get(url + "&page=" + str(i))
         
+    if resp.status_code != 200: 
+            print("\t Something is wrong!!!")
 
     return r_data
 
@@ -106,7 +111,10 @@ def update_orders():
 def update_listings(shop):
     "Creating new listing records for every listing that associated with shop."
     
-    r_data = get_request_Etsy_API_v2('/shops/'+shop.name+'/listings/active?limit=100&', 100000)
+    r_data = get_request_Etsy_API_v2('/shops/'+shop.name+'/listings/active?limit=100', 100000)
+
+    series = ListingRecordSeries()
+    series.save()
 
     for r_listing in r_data:
 
@@ -119,6 +127,7 @@ def update_listings(shop):
             listing.save()
 
         listing_record = ListingRecord( \
+                            series=series, \
                             listing=listing, \
                             price= float(r_listing['price']), \
                             quantity = int(r_listing['quantity']), \
@@ -130,4 +139,5 @@ def update_shops():
     "Update every shop"
 
     for shop in Shop.objects.all():
+        print("Shop: " + shop.name)
         update_listings(shop)

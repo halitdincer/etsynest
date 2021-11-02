@@ -1,4 +1,4 @@
-from listings.models import ListingRecord
+from listings.models import ListingRecord, ListingRecordSeries
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.generic import ListView,DetailView
@@ -37,13 +37,24 @@ class ShopDetailView(DetailView):
     def post(self, request, shop_name):
 
         shop = self.get_object()
-        print("Shop Name:" + shop.name)
+        all_series = ListingRecordSeries.objects.all().order_by("created_at")
 
         l_data = []
 
-        for listing in Listing.objects.filter(shop=shop):
-            for lr in ListingRecord.objects.filter(listing=listing):
-                l_data.append([listing.id,listing.title[:50] + ' - ' + str(listing.listing_id),timezone.localtime(lr.created_at).strftime('%d % %H:%M'),lr.quantity,lr.num_favorers,lr.price])
+        for series, next_series in zip(all_series, all_series[1:]):
+            records = ListingRecord.objects.filter(series=series)
+            next_records = ListingRecord.objects.filter(series=next_series)
+
+            for record in records:
+                next_record = next_records.filter(listing=record.listing).first()
+                if next_record:
+                    l_data.append([ \
+                                timezone.localtime(series.created_at).strftime('%d %B %H:%M'), \
+                                timezone.localtime(next_series.created_at).strftime('%d %B %H:%M') , \
+                                record.listing.listing_id, \
+                                record.listing.title[:50] , \
+                                record.quantity - next_record.quantity \
+                                ])
 
         context = {}
         context['draw'] = int(request.GET.get('draw',0))+1

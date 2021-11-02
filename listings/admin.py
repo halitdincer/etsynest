@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Listing,ListingRecord
+from .models import Listing,ListingRecord, ListingRecordSeries
 
 # Inlines
 
@@ -21,3 +21,4 @@ class ListingRecordAdmin(admin.ModelAdmin):
 
 admin.site.register(Listing,ListingAdmin)
 admin.site.register(ListingRecord,ListingRecordAdmin)
+admin.site.register(ListingRecordSeries)
