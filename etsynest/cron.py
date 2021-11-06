@@ -58,10 +58,10 @@ def get_request_Etsy_API_v2(url_ext, total):
     
     resp = etsy.get(url + "&page=" + str(i))
 
-    # if settings.DEBUG:
-    #     print("\t REQUEST URL: " + url + "&page=" + str(i) )
-    #     print("\t REQUEST STATUS: " + str(resp.status_code))
-    #     print("\t REQUEST RESULTS: " + str(resp.text))
+    if settings.DEBUG:
+        print("\t REQUEST URL: " + url + "&page=" + str(i) )
+        print("\t REQUEST STATUS: " + str(resp.status_code))
+        print("\t REQUEST RESULTS: " + str(resp.text))
     
     while 'json' in resp.headers.get('Content-Type') and 'results' in resp.json().keys() and i < total:
                 

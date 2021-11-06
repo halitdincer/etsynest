@@ -124,7 +124,7 @@ USE_L10N = True
 USE_TZ = True
 
 CRONJOBS = [
-    ('* */2 * * *', 'etsynest.cron.update_orders', '>> /tmp/update_orders.log'),
+    ('0 0 * * *', 'etsynest.cron.update_orders', '>> /tmp/update_orders.log'),
     ('0 0 * * *', 'etsynest.cron.update_shops', '>> /tmp/update_shops.log'),
 ]
 CRONTAB_COMMAND_SUFFIX = '2>&1'
