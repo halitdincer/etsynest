@@ -1,6 +1,6 @@
 from listings.models import ListingRecord, ListingSnapshot
 from django.http import JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, get_list_or_404, get_object_or_404
 from django.views.generic import ListView,DetailView
 from django.utils import timezone
 
@@ -25,8 +25,10 @@ class ShopListView(ListView):
         context['recordsTotal'] = len(l_data)
         context['recordsFiltered'] = len(l_data)
         context['data'] = l_data
+
         return JsonResponse(context, safe=False)
 
+    
 class ShopDetailView(DetailView):
     model = Shop
     context_object_name = "shop"
@@ -38,9 +40,18 @@ class ShopDetailView(DetailView):
 
         shop = self.get_object()
 
-        snapshots = ListingSnapshot.objects.filter(shop=shop).order_by("created_at")
+        snapshot_id1 = request.POST.get('snapshot_id1','')
+        snapshot_id2 = request.POST.get('snapshot_id2','')
 
         l_data = []
+
+        if snapshot_id1 and snapshot_id2 :
+            snapshot1 = get_object_or_404(ListingSnapshot, id=snapshot_id1)
+            snapshot2 = get_object_or_404(ListingSnapshot, id=snapshot_id2)
+
+            snapshots = [snapshot1, snapshot2]
+        else :
+            snapshots = ListingSnapshot.objects.filter(shop=shop).order_by("created_at")
 
         for snapshot, next_snapshot in zip(snapshots, snapshots[1:]):
 
@@ -62,3 +73,9 @@ class ShopDetailView(DetailView):
         context['data'] = l_data
 
         return JsonResponse(context, safe=False)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['snapshot_list'] = ListingSnapshot.objects.filter(shop=self.object)
+        return context
+

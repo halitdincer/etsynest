@@ -94,7 +94,7 @@ $(document).ready(function() {
                   headers: { "X-CSRFToken": '{{csrf_token}}' },
                   url: "{% url 'listings_index' %}",
                   method: "POST",
-                  "data": function () {
+                  data: function () {
                     return { 'shop_name': $( "#inputShopName" ).val(),} ;
                   }
               },
@@ -108,33 +108,6 @@ $(document).ready(function() {
       listings_table.clear().draw();
       listings_table.ajax.data =  { 'shop_name': $( "#inputShopName" ).val(),};
       listings_table.ajax.reload();
-      // $('#listings-table').DataTable().clear().destroy();
-      // $('#listings-table').DataTable({
-      //     "order": [[ DATE_COLUMN, "desc" ]],
-      //     "columnDefs": [
-      //           { "type" : 'date', 'targets': [DATE_COLUMN] },
-      //           {
-      //               "targets": [ DATE_COLUMN, ID_COLUMN, SHOP_COLUMN ],
-      //               "visible": false
-      //           },
-                
-      //       ],
-      //       "rowGroup": {
-      //             dataSrc: [DATE_COLUMN, SHOP_COLUMN],
-      //       },
-      //       "processing": true,
-      //       "serverSide": false,
-      //       "ajax": {
-      //               headers: { "X-CSRFToken": '{{csrf_token}}' },
-      //               url: "{% url 'listings_index' %}",
-      //               method: "POST",
-      //               data: {
-      //                     'shop_name': $( "#inputShopName" ).val(),
-      //                   },
-      //           },
-
-      //   });
-
     });
 
 

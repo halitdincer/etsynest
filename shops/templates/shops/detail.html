@@ -14,7 +14,27 @@
     <p class="text-center">Shops Detail</p>
 
     <div class="row mt-3 mb-5">
+        <div class="col-6">
+            <div class="input-group mb-3">
+                <select class="custom-select" id="inputGroupSnapshotList01">
+                    <option value="" selected>Choose...</option>
+                    {% for snapshot in snapshot_list %}
+                        <option value="{{snapshot.id}}">{{snapshot.created_at}}</option>
+                    {% endfor %}
+                  </select>
+                  <select class="custom-select" id="inputGroupSnapshotList02">
+                    <option value="" selected>Choose...</option>
+                    {% for snapshot in snapshot_list %}
+                        <option value="{{snapshot.id}}">{{snapshot.created_at}}</option>
+                    {% endfor %}
+                  </select>
+                  <div class="input-group-append">
+                    <button id="buttonSnapshotList" class="btn btn-outline-primary" type="button">Submit</button>
+                  </div>
+              </div>
+        </div>
         <div class="col-12">
+            
             <table id="shops-table" class="table table-hover table-bordered" style="width:100%">
                 <thead>
                     <th>Date 1</th>
@@ -45,6 +65,14 @@
 <script type="text/javascript" src="https://cdn.datatables.net/datetime/1.1.0/js/dataTables.dateTime.min.js"></script>
 <script type="text/javascript">
 
+  // Trigger button click on Enter 
+  document.addEventListener("keyup", function(event) {
+      if (event.keyCode === 13) {
+        event.preventDefault();
+        document.getElementById("buttonSnapshotList").click();
+      }
+  });
+
   const DATE1_COLUMN = 0 ;
   const DATE2_COLUMN = 1 ;
   const LISTING_ID_COLUMN = 2 ;
@@ -70,10 +98,20 @@
                 headers: { "X-CSRFToken": '{{csrf_token}}' },
                 url: "{% url 'shops_detail' shop_name=shop.name %}",
                 method: "POST",
+                data : function(){
+                  return {"snapshot_id1":$( "#inputGroupSnapshotList01" ).val(),"snapshot_id2":$( "#inputGroupSnapshotList02" ).val(),}
+                },
             },
 
     }
   );
+
+
+  // Action for button click
+  $("#buttonSnapshotList").click(function() {
+      shops_table.clear().draw();
+      shops_table.ajax.reload();
+    });
 
   shops_table.on('click', 'tr', function () {
       var data = shops_table.row( this ).data();
