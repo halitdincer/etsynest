@@ -3,7 +3,7 @@ from django.shortcuts import render
 from django.views.generic import ListView,DetailView
 from django.utils import timezone
 
-from listings.models import Listing,ListingRecord
+from listings.models import Listing,ListingRecord, ListingSnapshot
 from listings.utils import per_day
 
 class ListingListView(ListView):
@@ -15,7 +15,7 @@ class ListingListView(ListView):
 
         l_data = []
 
-        for listing in Listing.objects.all():
+        for listing in ListingSnapshot.objects.filter():
             listing_recent_record = ListingRecord.objects.filter(listing=listing).latest('created_at')
             l_data.append([listing.id,
                             timezone.localtime(listing.original_creation_tsz).strftime('%d %B %Y'),
@@ -38,7 +38,7 @@ class ListingDetailView(DetailView):
     model = Listing
     context_object_name = 'listing'
     template_name = "listings/detail.html"
-    slug_field = "id"
+    slug_field = "listing_id"
     slug_url_kwarg = "listing_id"
 
     def get_context_data(self, **kwargs):

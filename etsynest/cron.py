@@ -10,7 +10,7 @@ from etsy_config import ETSY_RESOURCE_OWNER_KEY,ETSY_RESOURCE_OWNER_SECRET
 from shops.models import Shop
 from orders.models import Order
 
-from listings.models import Listing,ListingRecord, ListingRecordSeries
+from listings.models import Listing,ListingRecord, ListingSnapshot
 
 from printify_config import PRINTIFY_SHOP_ID,PRINTIFY_URL, PRINTIFY_API_KEY
 
@@ -61,17 +61,21 @@ def get_request_Etsy_API_v2(url_ext, total):
     if settings.DEBUG:
         print("\t REQUEST URL: " + url + "&page=" + str(i) )
         print("\t REQUEST STATUS: " + str(resp.status_code))
-        print("\t REQUEST RESULTS: " + str(resp.text))
+    #    print("\t REQUEST RESULTS: " + str(resp.text))
     
     while 'json' in resp.headers.get('Content-Type') and 'results' in resp.json().keys() and i < total:
-                
+
         r_data.extend(resp.json()['results'])
 
         i+=1
         resp = etsy.get(url + "&page=" + str(i))
+
+        if not resp.json()['results']:
+            break ;
         
-    if resp.status_code != 200: 
-            print("\t Something is wrong!!!")
+        if resp.status_code != 200: 
+                print("\t Something is wrong!!!")
+                print("\t REQUEST RESULTS: " + str(resp.text[:100]))
 
     return r_data
 
@@ -113,8 +117,8 @@ def update_listings(shop):
     
     r_data = get_request_Etsy_API_v2('/shops/'+shop.name+'/listings/active?limit=100', 100000)
 
-    series = ListingRecordSeries()
-    series.save()
+    snapshot = ListingSnapshot(shop=shop)
+    snapshot.save()
 
     for r_listing in r_data:
 
@@ -127,7 +131,7 @@ def update_listings(shop):
             listing.save()
 
         listing_record = ListingRecord( \
-                            series=series, \
+                            snapshot=snapshot, \
                             listing=listing, \
                             price= float(r_listing['price']), \
                             quantity = int(r_listing['quantity']), \

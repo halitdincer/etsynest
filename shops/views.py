@@ -1,4 +1,4 @@
-from listings.models import ListingRecord, ListingRecordSeries
+from listings.models import ListingRecord, ListingSnapshot
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.generic import ListView,DetailView
@@ -37,20 +37,19 @@ class ShopDetailView(DetailView):
     def post(self, request, shop_name):
 
         shop = self.get_object()
-        all_series = ListingRecordSeries.objects.all().order_by("created_at")
+
+        snapshots = ListingSnapshot.objects.filter(shop=shop).order_by("created_at")
 
         l_data = []
 
-        for series, next_series in zip(all_series, all_series[1:]):
-            records = ListingRecord.objects.filter(series=series)
-            next_records = ListingRecord.objects.filter(series=next_series)
+        for snapshot, next_snapshot in zip(snapshots, snapshots[1:]):
 
-            for record in records:
-                next_record = next_records.filter(listing=record.listing).first()
-                if next_record:
+            for record in ListingRecord.objects.filter(snapshot=snapshot):
+                next_record = ListingRecord.objects.filter(listing=record.listing,snapshot=next_snapshot).first()
+                if next_record and (record.quantity - next_record.quantity) > 0 :
                     l_data.append([ \
-                                timezone.localtime(series.created_at).strftime('%d %B %H:%M'), \
-                                timezone.localtime(next_series.created_at).strftime('%d %B %H:%M') , \
+                                timezone.localtime(snapshot.created_at).strftime('%d %B %H:%M'), \
+                                timezone.localtime(next_snapshot.created_at).strftime('%d %B %H:%M') , \
                                 record.listing.listing_id, \
                                 record.listing.title[:50] , \
                                 record.quantity - next_record.quantity \

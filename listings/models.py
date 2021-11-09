@@ -14,13 +14,18 @@ class Listing(models.Model):
     def __str__(self):
         return "Title:"+self.title
 
-class ListingRecordSeries(models.Model):
+class ListingSnapshot(models.Model):
+
+    shop = models.ForeignKey('shops.Shop', null=True, on_delete=models.CASCADE)
 
     created_at = models.DateTimeField(default=now)
 
+    def __str__(self):
+        return self.shop.name + "(" + str(self.created_at) + ")"
+
 
 class ListingRecord(models.Model):
-    series = models.ForeignKey(ListingRecordSeries, blank=True, null=True, on_delete=models.CASCADE)
+    snapshot = models.ForeignKey(ListingSnapshot, blank=True, null=True, on_delete=models.CASCADE)
     listing = models.ForeignKey(Listing, on_delete=models.CASCADE)
 
     price = models.DecimalField(max_digits=6, decimal_places=2)
