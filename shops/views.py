@@ -62,7 +62,7 @@ class ShopDetailView(DetailView):
                                 timezone.localtime(snapshot.created_at).strftime('%d %B %H:%M'), \
                                 timezone.localtime(next_snapshot.created_at).strftime('%d %B %H:%M') , \
                                 record.listing.listing_id, \
-                                record.listing.title[:50] , \
+                                record.listing.title[:75] , \
                                 record.quantity - next_record.quantity \
                                 ])
 
