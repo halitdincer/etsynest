@@ -31,6 +31,22 @@ class Order(models.Model):
 
     def __str__(self):
         return str(self.first_name) + "'s Order"
+
+    @property
+    def estimated_item_count(self):
+        return int(self.total_price/30)
+
+    @property
+    def transaction_fees(self):
+        return self.total_price*5/100
+
+    @property
+    def listing_fees(self):
+        return self.estimated_item_count * 0.20
+
+    @property
+    def total_fees(self):
+        return self.total_tax + self.transaction_fees + self.listing_fees
     
     def as_json(self):
         return dict(
@@ -40,7 +56,11 @@ class Order(models.Model):
             email=self.email,
             phone=self.phone,
             total_price=self.total_price,
+            total_tax=self.total_tax,
             total_cost=self.total_cost,
+            estimated_item_count=self.estimated_item_count,
+            transaction_fees=self.transaction_fees,
+            listing_fees=self.listing_fees,
             created_at=self.created_at.isoformat())
 
 class OrderItem(models.Model):
