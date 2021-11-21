@@ -33,21 +33,42 @@
         </button>
       </div>
       <div class="modal-body">
-        <div>
-          <p><b>Personal Details</b></p>
+        <div id="receipt">
+          <p class="text-center"><b>Personal Details</b></p>
           <p class="first_name"></p>
           <p class="last_name"></p>
           <p class="email"></p>
           <p class="phone"></p>
-          <p><b>Billing</b></p>
-          <p>Price: <span class="total_price"></span></p>
-          <p>Tax: <span class="total_tax"></span></p>
-          <p>Transaction Fees: <span class="transaction_fees"></span></p>
-          <p>Listing Fees: <span class="listing_fees"></span></p>
-          <p>Printify Cost: <span class="total_cost"></span></p>
-          <hr>
-          <p>Revenue: <span class="revenue"></span></p>
-          
+          <p class="country"></p>
+
+          <div class="billing">
+            <p class="text-center"><b>Billing</b></p>
+
+            <p class="w-100">Price:<span class="total_price" style="float:right;"></span></p>
+            <p>Discount: <span class="total_discount" style="float:right;"></span></p>
+            <p><b>Subtotal:</b> <span class="subtotal" style="float:right;"></span></p>
+            <hr>
+            <p>Shipping: <span class="total_shipping_cost" style="float:right;"></span></p>
+            <p><b>Total Shipping:</b><span class="total_shipping_cost" style="float:right;"></span></p>
+            <hr>
+            <p>Tax: <span class="total_tax_cost" style="float:right;"></span></p>
+            <p>VAT: <span class="total_vat_cost" style="float:right;"></span></p>
+            <p><b>Total Tax&VAT:</b><span class="total_tax_vat" style="float:right;"></span></p>
+            <hr>
+            <p><b>Grandtotal:</b><span class="grandtotal" style="float:right;"></span></p>
+            <hr>
+            <p>Transaction Fees: <span class="transaction_fees" style="float:right;"></span></p>
+            <p>Shipping Transaction Fees: <span class="shipping_transaction_fees" style="float:right;"></span></p>
+            <p>Listing Fees: <span class="listing_fees" style="float:right;"></span></p>
+            <p>Processing Fees: <span class="processing_fees" style="float:right;"></span></p>
+            <p><b>Total Etsy Fees:</b><span class="total_etsy_fees" style="float:right;"></span></p>
+            <hr>
+            <p><b>Fixed Grandtotal:</b><span class="fixed_grandtotal" style="float:right;"></span></p>
+            <hr>
+            <p>Printify Cost: <span class="total_production_cost" style="float:right;"></span></p>
+            <hr>
+            <p>Revenue: <span class="revenue" style="float:right;"></span></p>
+          </div>
         </div>
       </div>
       <div class="modal-footer">
@@ -89,7 +110,8 @@
                 <th width="auto">Created At</th>
                 <th width="auto">Customer Name</th>
                 <th width="10%">Price</th>
-                <th width="10%">Fees & Tax</th>
+                <th width="10%">Fees</th>
+                <th width="10%">Tax</th>
                 <th width="10%">Cost</th>
                 <th width="10%">Revenue</th>
               </tr>
@@ -100,6 +122,7 @@
             <tfoot>
               <tr>
                   <th colspan="3" style="text-align:right">Total:</th>
+                  <th></th>
                   <th></th>
                   <th></th>
                   <th></th>
@@ -134,9 +157,10 @@ const ID_COLUMN = 0;
 const DATE_COLUMN = 1;
 const NAME_COLUMN = 2;
 const PRICE_COLUMN = 3;
-const FEESTAX_COLUMN = 4;
-const COST_COLUMN = 5;
-const REVENUE_COLUMN = 6;
+const FEES_COLUMN = 4;
+const TAX_COLUMN = 5;
+const COST_COLUMN = 6;
+const REVENUE_COLUMN = 7;
 
 var minDate, maxDate;
 
@@ -234,7 +258,8 @@ $('#order-table thead tr').clone(true).appendTo( '#order-table thead' );
 
             getTotalOfColumn(PRICE_COLUMN);
             getTotalOfColumn(COST_COLUMN);
-            getTotalOfColumn(FEESTAX_COLUMN);
+            getTotalOfColumn(FEES_COLUMN);
+            getTotalOfColumn(TAX_COLUMN);
             getTotalOfColumn(REVENUE_COLUMN);
  
             
@@ -242,7 +267,6 @@ $('#order-table thead tr').clone(true).appendTo( '#order-table thead' );
       "autoWidth": false,
       "bAutoWidth": false,
       "columnDefs": [
-            { "width": "100px", "targets": FEESTAX_COLUMN },
             { "type" : 'date', 'targets': [DATE_COLUMN] },
             {
                 "targets": [ ID_COLUMN],
@@ -265,12 +289,30 @@ $('#order-table thead tr').clone(true).appendTo( '#order-table thead' );
             modal.find('.last_name').text(results['last_name']);
             modal.find('.phone').text(results['phone']);
             modal.find('.email').text(results['email']);
-            modal.find('.total_price').text(results['total_price']);
-            modal.find('.total_cost').text(results['total_cost']);
-            modal.find('.total_tax').text(results['total_tax']);
+            modal.find('.country').text(results['country']);
+
+            modal.find('.total_price').text(results['total_price'].toFixed(2));
+            modal.find('.total_discount').text(results['total_discount'].toFixed(2));
+
+            modal.find('.total_shipping_cost').text(results['total_shipping_cost'].toFixed(2));
+            modal.find('.total_shipping').text(results['total_shipping_cost'].toFixed(2));
+
+            modal.find('.total_tax_cost').text(results['total_tax_cost'].toFixed(2));
+            modal.find('.total_vat_cost').text(results['total_vat_cost'].toFixed(2));
+            modal.find('.total_tax_vat').text((results['total_tax_cost']+results['total_vat_cost']).toFixed(2));
+
+            modal.find('.processing_fees').text(results['processing_fees'].toFixed(2));
             modal.find('.transaction_fees').text(results['transaction_fees'].toFixed(2));
+            modal.find('.shipping_transaction_fees').text(results['shipping_transaction_fees'].toFixed(2));
             modal.find('.listing_fees').text(results['listing_fees'].toFixed(2));
-            modal.find('.revenue').text((results['total_price']-results['total_fees']).toFixed(2));
+            modal.find('.total_etsy_fees').text((results['total_fees']).toFixed(2));
+
+            modal.find('.subtotal').text(results['subtotal'].toFixed(2));
+            modal.find('.grandtotal').text(results['grandtotal'].toFixed(2));
+            modal.find('.fixed_grandtotal').text((results['subtotal']+results['total_shipping_cost']-results['total_fees']).toFixed(2));
+            modal.find('.revenue').text(results['revenue'].toFixed(2));
+            modal.find('.total_production_cost').text(results['total_production_cost'].toFixed(2));
+
             modal.modal('show');
           }
       });

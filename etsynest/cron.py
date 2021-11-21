@@ -85,22 +85,30 @@ def update_orders():
     r_data = get_request_Etsy_API_v2('/shops/'+ETSY_SHOP_ID+'/receipts?limit=100&', 60)
     for r_receipts in r_data:
         order, created = Order.objects.get_or_create(order_id=r_receipts['receipt_id'])
-        if created :
-            order.first_name = r_receipts['name']
+        order.first_name = r_receipts['name']
 
-            order.region = r_receipts['state']
-            order.address1 = r_receipts['first_line']
-            order.city = r_receipts['city']
-            order.zip_code = r_receipts['zip']
+        order.region = r_receipts['state']
+        order.address1 = r_receipts['first_line']
+        order.city = r_receipts['city']
+        order.zip_code = r_receipts['zip']
 
-            order.email = r_receipts['buyer_email']
-            order.country = r_receipts['country_id']
+        order.email = r_receipts['buyer_email']
+        order.country = r_receipts['country_id']
 
-            order.total_price = r_receipts['grandtotal']
-            order.total_tax = r_receipts['total_tax_cost']
+        # Income 
+        order.total_price = r_receipts['total_price']
+        order.total_discount = r_receipts['discount_amt']
+        order.total_shipping_cost = r_receipts['total_shipping_cost']
+        # Tax & Fees
+        order.total_tax_cost = r_receipts['total_tax_cost']
+        order.total_vat_cost = r_receipts['total_vat_cost']
+        # Receipt Summary
+        order.subtotal = r_receipts['subtotal']
+        order.grandtotal = r_receipts['grandtotal']
+        order.adjusted_grandtotal = r_receipts['adjusted_grandtotal']
 
-            order.created_at = datetime.datetime.fromtimestamp(r_receipts['creation_tsz'], tz=pytz.UTC)
-            order.save()
+        order.created_at = datetime.datetime.fromtimestamp(r_receipts['creation_tsz'], tz=pytz.UTC)
+        order.save()
 
     # Update orders with Printify Data
     r_data = get_request_Printify_API('orders.json?limit=10&')
@@ -109,7 +117,7 @@ def update_orders():
         if 'shop_order_id' in r_order['metadata'].keys():
             order = Order.objects.filter(order_id=r_order['metadata']['shop_order_id']).first()
             if order :
-                order.total_cost = round(float(r_order['total_price'] + r_order['total_shipping'])/100.0*1.24,2)
+                order.total_production_cost = round(float(r_order['total_price'] + r_order['total_shipping'])/100.0*1.24,2)
                 order.save()
 
 def update_listings(shop):

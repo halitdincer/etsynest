@@ -21,19 +21,21 @@ class OrderListView(ListView):
                 l_data.append([order.order_id,
                                 timezone.localtime(order.created_at).strftime('%d %B %Y'),
                                 order.first_name,
-                                '$' + str(round(order.total_price,2)),
+                                '$' + str(round(order.subtotal+order.total_shipping_cost,2)),
                                 '$' + str(round(order.total_fees,2)),
-                                '$' + str(order.total_cost),
-                                '$' + str(round(int(order.total_cost != 0)*(order.total_price-order.total_cost-order.total_fees),2)),
+                                '$' + str(round(order.total_tax_cost,2)),
+                                '$' + str(order.total_production_cost),
+                                '$' + str(round(order.revenue,2)),
                 ])
             else:
                 l_data.append([order.order_id,
                                 "",
                                 order.first_name,
-                                '$' + str(round(order.total_price,2)),
+                                '$' + str(round(order.subtotal+order.total_shipping_cost,2)),
                                 '$' + str(round(order.total_fees,2)),
-                                '$' + str(order.total_cost),
-                                '$' + str(round(int(order.total_cost != 0)*(order.total_price-order.total_cost-order.total_fees),2)),
+                                '$' + str(round(order.total_tax_cost,2)),
+                                '$' + str(order.total_production_cost),
+                                '$' + str(round(order.revenue,2)),
                 ])
 
         context = {}
@@ -59,7 +61,6 @@ class OrderDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['item_list'] = OrderItem.objects.filter(order=self.object)
-        print("Transaction Fees:" + str(self.object.transaction_fees))
         return context
 
     def render_to_response(self, context, **response_kwargs):
